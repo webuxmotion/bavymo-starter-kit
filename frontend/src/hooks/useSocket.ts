@@ -1,32 +1,39 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { io, type Socket } from "socket.io-client";
+import { useUserStore } from "../store/useUserStore";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
 
 export function useSocket() {
-    const socketRef = useRef<Socket | null>(null);
+    const [socket, setSocket] = useState<Socket | null>(null);
+
+    const setUsers = useUserStore((state) => state.setUsers);
 
     useEffect(() => {
-        // Connect to backend
-        socketRef.current = io(SOCKET_URL);
+        const newSocket = io(SOCKET_URL);
 
-        socketRef.current.on("connect", () => {
-            console.log("✅ Connected to WebSocket server", socketRef.current?.id);
+        newSocket.on("connect", () => {
+            setSocket(newSocket);
+
+            console.log("✅ Connected:", newSocket.id);
         });
 
-        socketRef.current.on("reply", (msg) => {
+        newSocket.on("reply", (msg) => {
             console.log("📩 Reply from server:", msg);
         });
 
-        // Cleanup on unmount
+        newSocket.on("online-users", (users) => {
+            setUsers(users);
+        });
+
         return () => {
-            socketRef.current?.disconnect();
+            newSocket.disconnect();
         };
     }, []);
 
     const sendMessage = (msg: string) => {
-        socketRef.current?.emit("message", msg);
+        socket?.emit("message", msg);
     };
 
-    return { sendMessage };
+    return { sendMessage, socket };
 }

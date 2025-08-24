@@ -1,43 +1,40 @@
 import { create } from "zustand";
+import type { OnlineUser } from "../../../backend/src/types/shared/types"
 import { API_URL } from "../config";
 
-type User = {
-    id?: number;
-    name?: string;
-    personalCode: string;
-};
-
 type UserStore = {
-    user: User | null;
-    users: User[];
-    addUser: (user: User) => void;
-    removeUser: (id: number) => void;
-    fetchPersonalCode: (id: number, name: string) => Promise<void>;
+    user: OnlineUser | null;
+    users: OnlineUser[];
+    addUser: (user: OnlineUser) => void;
+    removeUser: (personalCode: string) => void;
+    postAddUser: (user: OnlineUser) => void;
+    setUsers: (users: OnlineUser[]) => void;
 };
 
 export const useUserStore = create<UserStore>((set) => ({
     user: null,
     users: [],
     addUser: (user) => set((state) => ({ users: [...state.users, user] })),
-    removeUser: (id) =>
-        set((state) => ({ users: state.users.filter((u) => u.id !== id) })),
-    fetchPersonalCode: async (id, name) => {
+    removeUser: (personalCode) =>
+        set((state) => ({ users: state.users.filter((u) => u.personalCode !== personalCode) })),
+    postAddUser: async (user: OnlineUser) => {
         try {
-            const res = await fetch(`${API_URL}/generate-personal-code`);
-            const data = await res.json();
+            const res = await fetch(`${API_URL}/add-user`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(user),
+            });
 
-            const newUser: User = {
-                id,
-                name,
-                personalCode: data.personalCode,
-            };
+            const data: OnlineUser = await res.json();
 
-            set((state) => ({
-                user: newUser,
-                users: [...state.users, newUser],
+            set(() => ({
+                user: data,
             }));
         } catch (err) {
-            console.error("Failed to fetch personal code:", err);
+            console.error("❌ Failed to add user:", err);
         }
     },
+    setUsers: (users) => set({ users }),
 }));

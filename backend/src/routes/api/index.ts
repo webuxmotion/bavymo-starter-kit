@@ -1,11 +1,13 @@
 import { Router } from "express";
 import personalCodeRouter from "./personalCode";
-// import other routers here later, e.g. import userRouter from "./user";
+import postAddUser from "./postAddUser";
+import type { Server as SocketIOServer } from "socket.io";
 
-const router = Router();
+export default (io: SocketIOServer) => {
+    const router = Router();
 
-// Mount all individual routes without /api prefix
-router.use("/generate-personal-code", personalCodeRouter);
-// router.use("/users", userRouter); // example for future routes
+    router.use("/generate-personal-code", personalCodeRouter);
+    router.use("/add-user", postAddUser(io));
 
-export default router;
+    return router;
+}

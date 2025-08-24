@@ -11,6 +11,7 @@ import { useSocket } from "./utils/useSocket";
 const PORT = 3000;
 
 const app = express();
+app.use(express.json());
 const httpServer = createServer(app);
 
 const io = new SocketIOServer(httpServer, {
@@ -21,7 +22,7 @@ useCors(app);
 useStaticFrontend(app);
 
 app.use("/", indexRouter);
-app.use("/api", apiRouter);
+app.use("/api", apiRouter(io));
 
 useSocket(io);
 
