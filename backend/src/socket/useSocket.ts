@@ -1,6 +1,7 @@
 import { type Server, type Socket } from "socket.io";
-import { handleMessage } from "../socketHandlers/messages";
 import { store } from "../store/store";
+import { callAccept } from "../socketHandlers/callAccept";
+import { roomCreate } from "../socketHandlers/roomCreate";
 
 export function useSocket(io: Server) {
     io.on("connection", (socket: Socket) => {
@@ -9,8 +10,9 @@ export function useSocket(io: Server) {
         const onlineUsers = store.getAllUsers();
         io.emit("online-users", onlineUsers);
 
-        // Attach message listener
-        socket.on("message", handleMessage);
+        socket.on("room-create", roomCreate);
+
+        socket.on("call-accept", callAccept);
 
         // Handle disconnect
         socket.on("disconnect", (reason) => {

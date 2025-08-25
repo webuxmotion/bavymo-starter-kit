@@ -9,10 +9,17 @@ export enum CallStatus {
     InProgress = "in-progress",
     Ended = "ended",
     Rejected = "rejected",
+    Connecting = "connecting"
 }
 
 export type Room = {
+    roomId: string;
     caller: OnlineUser;
     callee: OnlineUser;
     callStatus: CallStatus;
+};
+
+export type ClientRoomCreate = {
+    callerPersonalCode: string;
+    calleePersonalCode: string;
 };

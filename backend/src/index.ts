@@ -6,7 +6,7 @@ import apiRouter from "./routes/api";
 import { getSocketCors, useCors } from "./utils/cors";
 import { useStaticFrontend } from "./utils/useStaticFrontend";
 import indexRouter from "./routes";
-import { useSocket } from "./utils/useSocket";
+import { useSocket } from "./socket/useSocket";
 
 const PORT = 3000;
 
@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 const httpServer = createServer(app);
 
-const io = new SocketIOServer(httpServer, {
+export const io = new SocketIOServer(httpServer, {
     cors: getSocketCors(),
 });
 

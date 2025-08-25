@@ -42,9 +42,9 @@ export class Store {
     }
 
     // --- Rooms ---
-    addRoom(room: Room, roomId?: string) {
+    addRoom(room: Room) {
         // use provided roomId or caller's socketId as key
-        this.rooms.set(roomId || room.caller.socketId, room);
+        this.rooms.set(room.roomId || room.caller.socketId, room);
     }
 
     updateRoomStatus(roomId: string, status: CallStatus) {
